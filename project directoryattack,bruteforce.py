@@ -1,63 +1,39 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import itertools
 import string
-import os
 
-# Hardcoded correct password
-CORRECT_PASSWORD = "P@ssw0rd123!"
+# Hardcoded password
+CORRECT_PASSWORD = "Tiger"  # Change this as needed
 
-def dictionary_attack(username, dictionary_path):
-    """Attempts to find the password using a dictionary file."""
-    
-    # Debug: Check if file exists
-    if not os.path.exists(dictionary_path):
-        return f"Error: Dictionary file '{dictionary_path}' not found. Please check the file path."
-
+# Function for Dictionary Attack
+def dictionary_attack(dictionary_file):
     try:
-        with open(dictionary_path, "r", encoding="utf-8") as file:
-            for password in file:
-                password = password.strip()  # Remove spaces and newlines
-                
-                # Debug: Print each password being tested
-                print(f"Trying password: '{password}'")
-                
-                if password == CORRECT_PASSWORD:
-                    return f"Success! User '{username}' logged in with password: '{password}' (Dictionary Attack)"
-    except Exception as e:
-        return f"Error reading the file: {e}"
-    
-    return None  # Dictionary attack failed
+        with open(dictionary_file, "r") as file:
+            for word in file:
+                word = word.strip()
+                if word == CORRECT_PASSWORD:
+                    return f"[SUCCESS] Dictionary Attack: Password found! -> {word}"
+        return "[FAILED] Dictionary Attack: Password not found in dictionary."
+    except FileNotFoundError:
+        return "[ERROR] Dictionary file not found!"
 
-def brute_force_attack(username):
-    """Performs a brute force attack by generating all possible 5-letter passwords."""
-    chars = string.ascii_letters  # Uppercase and lowercase letters
-    for password_tuple in itertools.product(chars, repeat=5):
-        password = "".join(password_tuple)
-        if password == CORRECT_PASSWORD:
-            return f"Success! User '{username}' logged in with password: '{password}' (Brute Force Attack)"
-    return "Failed to crack the password."  # Should not happen with a 5-letter limit
+# Function for Brute Force Attack
+def brute_force_attack():
+    chars = string.ascii_letters  # A-Z, a-z
+    for combination in itertools.product(chars, repeat=5):
+        guess = "".join(combination)
+        if guess == CORRECT_PASSWORD:
+            return f"[SUCCESS] Brute Force Attack: Password cracked! -> {guess}"
+    return "[FAILED] Brute Force Attack: Exhausted all possibilities."
 
-# Prompt user for username
-username = input("Enter username: ")
+# Command-line execution
+def main():
+    dict_result = dictionary_attack("dictionary.txt")
+    print(dict_result)
 
-dictionary_file_path = "Directory.txt"  # Ensure this file exists!
+    # Always run brute force attack, regardless of dictionary attack result
+    print("[INFO] Starting Brute Force Attack...")
+    brute_result = brute_force_attack()
+    print(brute_result)
 
-# Run dictionary attack first
-result = dictionary_attack(username, dictionary_file_path)
-if result:
-    print(result)
-else:
-    print("Dictionary attack failed. Trying brute force...")
-    print(brute_force_attack(username))
-
-
-# In[ ]:
-
-
-
-
+if __name__ == "__main__":
+    main()
